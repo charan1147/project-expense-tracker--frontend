@@ -1,0 +1,9 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+  environment = { VITE_API_URL = "https://project-expenses-tracker-1.onrender.com/api" }
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
