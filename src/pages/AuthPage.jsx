@@ -1,4 +1,4 @@
-iam using bootstrap for this code but i wnat only either login or register to show if i dont have account if i lick o =n register which is at login then register should same way for login but i need to use only bootstarp import { useState, useContext } from "react";
+ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
