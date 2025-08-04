@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+iam using bootstrap for this code but i wnat only either login or register to show if i dont have account if i lick o =n register which is at login then register should same way for login but i need to use only bootstarp import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
@@ -51,16 +51,16 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="auth-page d-flex justify-content-center align-items-center vh-100 bg-light">
-      <div className="auth-container col-md-6 shadow p-4 bg-white rounded">
+    <div className="auth-page d-flex justify-content-center align-items-center vh-100">
+      <div className="auth-container col-md-6">
         <div
           className={`auth-form register ${
-            activeForm !== "register" ? "d-none" : ""
+            activeForm === "register" ? "active" : ""
           }`}
         >
           <h2 className="text-center mb-4">Register</h2>
           {registerError && (
-            <p className="alert alert-danger">{registerError}</p>
+            <p className="error-text alert alert-danger">{registerError}</p>
           )}
           <form onSubmit={handleRegisterSubmit}>
             <input
@@ -94,22 +94,19 @@ const AuthPage = () => {
               Register
             </button>
           </form>
-          <p
-            onClick={toggleForm}
-            className="text-primary mt-3 text-center"
-            role="button"
-          >
+          <p onClick={toggleForm} className="toggle-link mt-3 text-center">
             Already have an account? Click to Login
           </p>
         </div>
-
         <div
           className={`auth-form login ${
-            activeForm !== "login" ? "d-none" : ""
+            activeForm === "login" ? "active" : ""
           }`}
         >
           <h2 className="text-center mb-4">Login</h2>
-          {loginError && <p className="alert alert-danger">{loginError}</p>}
+          {loginError && (
+            <p className="error-text alert alert-danger">{loginError}</p>
+          )}
           <form onSubmit={handleLoginSubmit}>
             <input
               type="email"
@@ -131,11 +128,7 @@ const AuthPage = () => {
               Login
             </button>
           </form>
-          <p
-            onClick={toggleForm}
-            className="text-primary mt-3 text-center"
-            role="button"
-          >
+          <p onClick={toggleForm} className="toggle-link mt-3 text-center">
             Don't have an account? Click to Register
           </p>
         </div>
