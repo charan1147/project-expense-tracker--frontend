@@ -51,16 +51,16 @@ const AuthPage = () => {
   };
 
   return (
-    <div className="auth-page d-flex justify-content-center align-items-center vh-100">
-      <div className="auth-container col-md-6">
+    <div className="auth-page d-flex justify-content-center align-items-center vh-100 bg-light">
+      <div className="auth-container col-md-6 shadow p-4 bg-white rounded">
         <div
           className={`auth-form register ${
-            activeForm === "register" ? "active" : ""
+            activeForm !== "register" ? "d-none" : ""
           }`}
         >
           <h2 className="text-center mb-4">Register</h2>
           {registerError && (
-            <p className="error-text alert alert-danger">{registerError}</p>
+            <p className="alert alert-danger">{registerError}</p>
           )}
           <form onSubmit={handleRegisterSubmit}>
             <input
@@ -94,19 +94,21 @@ const AuthPage = () => {
               Register
             </button>
           </form>
-          <p onClick={toggleForm} className="toggle-link mt-3 text-center">
+          <p
+            onClick={toggleForm}
+            className="text-primary mt-3 text-center"
+            role="button"
+          >
             Already have an account? Click to Login
           </p>
         </div>
         <div
           className={`auth-form login ${
-            activeForm === "login" ? "active" : ""
+            activeForm !== "login" ? "d-none" : ""
           }`}
         >
           <h2 className="text-center mb-4">Login</h2>
-          {loginError && (
-            <p className="error-text alert alert-danger">{loginError}</p>
-          )}
+          {loginError && <p className="alert alert-danger">{loginError}</p>}
           <form onSubmit={handleLoginSubmit}>
             <input
               type="email"
@@ -128,7 +130,11 @@ const AuthPage = () => {
               Login
             </button>
           </form>
-          <p onClick={toggleForm} className="toggle-link mt-3 text-center">
+          <p
+            onClick={toggleForm}
+            className="text-primary mt-3 text-center"
+            role="button"
+          >
             Don't have an account? Click to Register
           </p>
         </div>
