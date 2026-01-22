@@ -1,103 +1,105 @@
-import React, { createContext, useState, useEffect, useContext } from "react"; 
-// Importing necessary React hooks and functions for creating and managing context.
+// ExpensesProvider.jsx
+import { createContext, useState, useEffect, useContext } from "react";
+import {
+  getPersonalExpenses,
+  addPersonalExpense,
+  updateExpense,
+  deleteExpense,
+} from "../api/api";
 
-import axios from "axios"; 
-// Importing Axios for making HTTP requests to the backend.
+export const ExpensesContext = createContext();
 
-const PersonalExpensesContext = createContext(); 
-// Creating a new context for managing personal expenses.
+export const ExpensesProvider = ({ children }) => {
+  const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export const ExpensesProvider = ({ children }) => { 
-// Defining a provider component that will wrap around other components 
-// and provide access to personal expenses data.
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
 
-  const [expenses, setExpenses] = useState([]); 
-  // State to store the list of personal expenses.
-
-  const [loading, setLoading] = useState(true); 
-  // State to track whether data is being fetched.
-
-  useEffect(() => { 
-    fetchExpenses(); 
-  }, []); 
-  // useEffect runs once when the component mounts to fetch expenses from the server.
-
-  // Function to fetch personal expenses from the backend.
   const fetchExpenses = async () => {
     try {
-      const res = await axios.get("http://localhost:5003/api/personal-expenses", {
-        withCredentials: true, 
-        // Ensuring credentials (such as cookies) are sent with the request.
-      });
-      setExpenses(res.data); 
-      // Updating the state with fetched expenses.
+      setLoading(true);
+      const res = await getPersonalExpenses();
+      // Adjust based on your actual backend response structure
+      const expensesData = res.data.data || res.data || [];
+      setExpenses(Array.isArray(expensesData) ? expensesData : []);
     } catch (err) {
-      console.error("Error fetching expenses:", err.response?.data?.message || err.message);
-      // Logging any errors that occur during the API call.
+      console.error("Error fetching expenses:", err);
     } finally {
-      setLoading(false); 
-      // Marking loading as false after fetching data.
+      setLoading(false);
     }
   };
 
-  // Function to add a new personal expense.
-  const addExpense = async (title, amount, date) => {
+  // Now accepts the same fields as ExpenseForm
+  const addExpense = async ({ category, amount, description, date }) => {
     try {
-      const res = await axios.post(
-        "http://localhost:5003/api/personal-expenses", 
-        { title, amount, date }, 
-        { withCredentials: true } 
-        // Sending request with necessary credentials.
+      const payload = {
+        category,
+        amount: Number(amount), // ensure number
+        description: description || "", // optional field
+        date,
+      };
+
+      const res = await addPersonalExpense(payload);
+      // Assuming backend returns the created expense
+      const newExpense = res.data.data || res.data;
+
+      setExpenses((prev) => [...prev, newExpense]);
+      return newExpense; // optional: useful if you want to do something after add
+    } catch (err) {
+      console.error("Error adding expense:", err);
+      throw err; // let the caller handle/display the error
+    }
+  };
+
+  const updateExpenseLocal = async (id, updatedExpense) => {
+    try {
+      const payload = {
+        category: updatedExpense.category,
+        amount: Number(updatedExpense.amount),
+        description: updatedExpense.description || "",
+        date: updatedExpense.date,
+      };
+
+      const res = await updateExpense(id, payload);
+      const updated = res.data.data || res.data;
+
+      setExpenses((prev) =>
+        prev.map((exp) => (exp._id === id ? updated : exp)),
       );
-      setExpenses([...expenses, res.data]); 
-      // Updating the state by adding the new expense to the list.
+
+      return updated;
     } catch (err) {
-      console.error("Error adding expense:", err.response?.data?.message || err.message);
-      // Logging any errors that occur.
+      console.error("Error updating expense:", err);
+      throw err;
     }
   };
 
-  // Function to update an existing expense.
-  const updateExpense = async (id, updatedExpense) => {
+  const deleteExpenseLocal = async (id) => {
     try {
-      const res = await axios.put(
-        `http://localhost:5003/api/personal-expenses/${id}`, 
-        updatedExpense, 
-        { withCredentials: true } 
-        // Ensuring credentials are sent with the request.
-      );
-      setExpenses(expenses.map((expense) => (expense._id === id ? res.data : expense))); 
-      // Updating the state by replacing the updated expense.
+      await deleteExpense(id);
+      setExpenses((prev) => prev.filter((exp) => exp._id !== id));
     } catch (err) {
-      console.error("Error updating expense:", err.response?.data?.message || err.message);
-      // Logging errors in case of failure.
-    }
-  };
-
-  // Function to delete an expense.
-  const deleteExpense = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5003/api/personal-expenses/${id}`, {
-        withCredentials: true, 
-        // Ensuring credentials are included in the request.
-      });
-      setExpenses(expenses.filter((expense) => expense._id !== id)); 
-      // Removing the deleted expense from the state.
-    } catch (err) {
-      console.error("Error deleting expense:", err.response?.data?.message || err.message);
-      // Logging errors in case of failure.
+      console.error("Error deleting expense:", err);
+      throw err;
     }
   };
 
   return (
-    <ExpensesContext.Provider 
-      value={{ expenses, fetchExpenses, addExpense, updateExpense, deleteExpense, loading }} 
+    <ExpensesContext.Provider
+      value={{
+        expenses,
+        loading,
+        fetchExpenses,
+        addExpense,
+        updateExpense: updateExpenseLocal,
+        deleteExpense: deleteExpenseLocal,
+      }}
     >
-      {children} 
-      {/* Rendering child components inside the provider */}
+      {children}
     </ExpensesContext.Provider>
   );
 };
 
-export const useExpenses = () => useContext(ExpensesContext); 
-// Custom hook to allow other components to easily access the context.
+export const useExpenses = () => useContext(ExpensesContext);

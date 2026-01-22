@@ -28,24 +28,30 @@ const ExpenseForm = ({ onComplete, initialData = {} }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (Object.values(expense).some((val) => !val)) {
-      alert("All fields are required!");
+    if (Object.values(expense).some((val) => !val && val !== "")) {
+      alert("All required fields must be filled!");
       return;
     }
+
     try {
       if (initialData._id) {
         await updateExpense(initialData._id, expense);
         alert("Expense updated successfully");
       } else {
-        await addPersonalExpense(expense);
+        await addExpense(expense); // ← now passes the full object
         alert("Expense added successfully");
         setExpense({ category: "", amount: "", description: "", date: "" });
       }
       onComplete?.();
     } catch (error) {
-      alert(`Failed to ${initialData._id ? "update" : "add"} expense`);
+      alert(
+        `Failed to ${initialData._id ? "update" : "add"} expense: ${
+          error.response?.data?.message || error.message
+        }`,
+      );
     }
-  };
+  }
+
 
   return (
     <div className="container mt-4">
@@ -124,6 +130,6 @@ const ExpenseForm = ({ onComplete, initialData = {} }) => {
       </div>
     </div>
   );
-};
+};;
 
 export default ExpenseForm;
