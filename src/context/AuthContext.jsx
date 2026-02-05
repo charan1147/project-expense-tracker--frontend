@@ -23,12 +23,10 @@ export const AuthProvider = ({ children }) => {
           setUser(res.data.user);
         }
       } catch (err) {
-        // 🔑 ONLY logout on 401
         if (err.response?.status === 401) {
           localStorage.removeItem("jwt");
           setUser(null);
         }
-        // ❌ Do NOT logout on 500 / 404
       } finally {
         setLoading(false);
       }
