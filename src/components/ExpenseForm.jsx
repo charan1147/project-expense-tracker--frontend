@@ -38,7 +38,7 @@ const ExpenseForm = ({ onComplete, initialData = {} }) => {
         await updateExpense(initialData._id, expense);
         alert("Expense updated successfully");
       } else {
-        await addExpense(expense); // ← now passes the full object
+        await addPersonalExpense(expense); 
         alert("Expense added successfully");
         setExpense({ category: "", amount: "", description: "", date: "" });
       }

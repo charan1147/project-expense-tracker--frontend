@@ -7,23 +7,27 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const token = localStorage.getItem("jwt");
-    if (token) {
-      getCurrentUser()
-        .then((res) => {
-          if (res.data.success) {
-            setUser(res.data.user);
-          }
-        })
-        .catch(() => {
-          localStorage.removeItem("jwt");
-        })
-        .finally(() => setLoading(false));
-    } else {
+useEffect(() => {
+  const token = localStorage.getItem("jwt");
+  if (!token) {
+    setLoading(false);
+    return;
+  }
+
+  const loadUser = async () => {
+    try {
+      const res = await getCurrentUser();
+      if (res.data.success) setUser(res.data.user);
+    } catch {
+      localStorage.removeItem("jwt");
+    } finally {
       setLoading(false);
     }
-  }, []);
+  };
+
+  loadUser();
+}, []);
+
 
   const signUp = async (username, email, password) => {
     const res = await register({ username, email, password });
